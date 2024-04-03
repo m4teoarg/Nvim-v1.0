@@ -22,3 +22,5 @@ opt.smartcase = true
 opt.swapfile = false
 opt.autoread = true
 vim.bo.autoread = true
+
+vim.opt.laststatus = 3

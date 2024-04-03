@@ -1,4 +1,4 @@
-vim.g.base46_cache = vim.fn.stdpath('data') .. '/base46_cache/'
+vim.g.base46_cache = vim.fn.stdpath("data") .. "/base46_cache/"
 
 vim.g.mapleader = " "
 
@@ -24,5 +24,5 @@ require("options")
 local integrations = require("nvconfig").base46.integrations
 
 for _, name in ipairs(integrations) do
-  dofile(vim.g.base46_cache .. name)
+	dofile(vim.g.base46_cache .. name)
 end
