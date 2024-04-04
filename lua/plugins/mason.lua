@@ -8,9 +8,9 @@ return {
 		require("mason").setup({
 			ui = {
 				icons = {
-					package_installed = "✓",
-					package_pending = "➜",
-					package_uninstalled = "✗",
+					package_pending = " ",
+					package_installed = "󰄳 ",
+					package_uninstalled = " 󰚌",
 				},
 			},
 		})
@@ -25,6 +25,8 @@ return {
 				"pyright",
 				"ruff-lsp",
 			},
+
+			max_concurrent_installers = 10,
 		})
 	end,
 }
