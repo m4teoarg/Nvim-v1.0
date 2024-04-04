@@ -23,7 +23,7 @@ M.ui = {
 		theme = "default", -- default/vscode/vscode_colored/minimal
 		-- default/round/block/arrow separators work only for default statusline theme
 		-- round and block will work for minimal theme only
-		separator_style = "default",
+		separator_style = "block",
 		order = nil,
 		modules = nil,
 	},
@@ -98,5 +98,3 @@ M.base46 = {
 }
 
 return M
-
--- return vim.tbl_deep_extend("force", M, require "chadrc")

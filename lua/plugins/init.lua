@@ -1,3 +1,4 @@
+require("configs.lazy_nvim")
 return {
 	{ "nvim-lua/plenary.nvim", lazy = true },
 
