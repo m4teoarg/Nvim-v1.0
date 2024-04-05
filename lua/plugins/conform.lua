@@ -6,6 +6,7 @@ return {
 		require("conform").setup({
 			formatters_by_ft = {
 				lua = { "stylua" },
+				python = { "autopep8" },
 				javascript = { "prettierd" },
 				typescript = { "prettierd" },
 				javascriptreact = { "prettierd" },
@@ -19,7 +20,7 @@ return {
 			},
 
 			format_on_save = {
-				pattern = ".lua,*.graphql,*.css,*.html,*.json,*.yaml,*.md,*.gql,*.rs",
+				pattern = ".lua,*python,*.graphql,*.css,*.html,*.json,*.yaml,*.md,*.gql,*.rs",
 				timeout_ms = 500,
 				async = false,
 				lsp_fallback = true,
