@@ -18,8 +18,6 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({ import = "plugins" })
 
 require("options")
--- require("nvconfig.lua")
--- vim.cmd "colorscheme nightly"
 
 local integrations = require("nvconfig").base46.integrations
 

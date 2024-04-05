@@ -7,6 +7,7 @@ return {
 		local keymap = vim.keymap
 		keymap.set("n", "<leader>ff", builtin.find_files, {})
 		keymap.set("n", "<leader>fg", builtin.live_grep, {})
+		keymap.set("n", "<leader>gf", builtin.git_files, {})
 
 		local actions = require("telescope.actions")
 		require("telescope").setup({
