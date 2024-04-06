@@ -1,165 +1,97 @@
+-- LSP Support
 return {
-	{
-		"neovim/nvim-lspconfig",
-		event = { "BufReadPost" },
-		cmd = { "LspInfo", "LspInstall", "LspUninstall", "Mason" },
-		dependencies = {
-			-- Plugin(s) and UI to automatically install LSPs to stdpath
-			"williamboman/mason.nvim",
-			"williamboman/mason-lspconfig.nvim",
-			"WhoIsSethDaniel/mason-tool-installer.nvim",
+  -- LSP Configuration
+  -- https://github.com/neovim/nvim-lspconfig
+  'neovim/nvim-lspconfig',
+  event = 'VeryLazy',
+  dependencies = {
+    -- LSP Management
+    -- https://github.com/williamboman/mason.nvim
+    { 'williamboman/mason.nvim' },
+    -- https://github.com/williamboman/mason-lspconfig.nvim
+    { 'williamboman/mason-lspconfig.nvim' },
 
-			-- Install lsp autocompletions
-			"hrsh7th/cmp-nvim-lsp",
+    -- Auto-Install LSPs, linters, formatters, debuggers
+    -- https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim
+    { 'WhoIsSethDaniel/mason-tool-installer.nvim' },
 
-			-- Progress/Status update for LSP
-			{ "j-hui/fidget.nvim", opts = {} },
+    -- Useful status updates for LSP
+    -- https://github.com/j-hui/fidget.nvim
+    { 'j-hui/fidget.nvim', opts = {} },
 
-			-- Install lsp autocompletions
-			"hrsh7th/cmp-nvim-lsp",
+    -- Additional lua configuration, makes nvim stuff amazing!
+    -- https://github.com/folke/neodev.nvim
+    {'folke/neodev.nvim' },
+  },
+  config = function ()
+    require('mason').setup()
+    require('mason-lspconfig').setup({
+      -- Install these LSPs automatically
+      ensure_installed = {
+        'bashls',
+        'cssls',
+        'html',
+        'lua_ls',
+        'jsonls',
+        'lemminx',
+        'marksman',
+        'quick_lint_js',
+        'yamlls',
+        'pyright',
+      }
+    })
 
-			-- Progress/Status update for LSP
-			{ "j-hui/fidget.nvim", opts = {} },
-		},
-		config = function()
-			-- Override tsserver diagnostics to filter out specific messages
-			local messages_to_filter = {
-				"This may be converted to an async function.",
-				"'_Assertion' is declared but never used.",
-				"'__Assertion' is declared but never used.",
-				"The signature '(data: string): string' of 'atob' is deprecated.",
-				"The signature '(data: string): string' of 'btoa' is deprecated.",
-			}
+    require('mason-tool-installer').setup({
+      -- Install these linters, formatters, debuggers automatically
+      ensure_installed = {
+        'black',
+        'debugpy',
+        'flake8',
+        'isort',
+        'mypy',
+        'pylint',
+      },
+    })
 
-			local function tsserver_on_publish_diagnostics_override(_, result, ctx, config)
-				local filtered_diagnostics = {}
+    -- There is an issue with mason-tools-installer running with VeryLazy, since it triggers on VimEnter which has already occurred prior to this plugin loading so we need to call install explicitly
+    -- https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim/issues/39
+    vim.api.nvim_command('MasonToolsInstall')
 
-				for _, diagnostic in ipairs(result.diagnostics) do
-					local found = false
-					for _, message in ipairs(messages_to_filter) do
-						if diagnostic.message == message then
-							found = true
-							break
-						end
-					end
-					if not found then
-						table.insert(filtered_diagnostics, diagnostic)
-					end
-				end
+    local lspconfig = require('lspconfig')
+    local lsp_capabilities = require('cmp_nvim_lsp').default_capabilities()
+    local lsp_attach = function(client, bufnr)
+      -- Create your keybindings here...
+    end
 
-				result.diagnostics = filtered_diagnostics
+    -- Call setup on each LSP server
+    require('mason-lspconfig').setup_handlers({
+      function(server_name)
+        lspconfig[server_name].setup({
+          on_attach = lsp_attach,
+          capabilities = lsp_capabilities,
+        })
+      end
+    })
 
-				vim.lsp.diagnostic.on_publish_diagnostics(_, result, ctx, config)
-			end
+    -- Lua LSP settings
+    lspconfig.lua_ls.setup {
+      settings = {
+        Lua = {
+          diagnostics = {
+            -- Get the language server to recognize the `vim` global
+            globals = {'vim'},
+          },
+        },
+      },
+    }
 
-			-- Default handlers for LSP
-			local default_handlers = {
-				["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" }),
-				["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" }),
-			}
+    -- Globally configure all LSP floating preview popups (like hover, signature help, etc)
+    local open_floating_preview = vim.lsp.util.open_floating_preview
+    function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+      opts = opts or {}
+      opts.border = opts.border or "rounded" -- Set border to rounded
+      return open_floating_preview(contents, syntax, opts, ...)
+    end
 
-			-- Function to run when neovim connects to a Lsp client
-			---@diagnostic disable-next-line: unused-local
-			-- local on_attach = function(_client, buffer_number)
-			-- Pass the current buffer to map lsp keybinds
-			--	map_lsp_keybinds(buffer_number)
-			--end
-
-			-- LSP servers and clients are able to communicate to each other what features they support.
-			--  By default, Neovim doesn't support everything that is in the LSP Specification.
-			--  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
-			--  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
-			local capabilities = vim.lsp.protocol.make_client_capabilities()
-			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
-
-			local servers = {
-				-- LSP Servers
-				bashls = {},
-				cssls = {},
-				gleam = {},
-				eslint = {},
-				html = {},
-				jsonls = {},
-				lua_ls = {},
-				marksman = {},
-				ocamllsp = {},
-				nil_ls = {},
-				pyright = {},
-				sqlls = {},
-				tailwindcss = {},
-				tsserver = {},
-				yamlls = {},
-			}
-
-			local formatters = {
-				prettierd = {},
-				stylua = {},
-			}
-
-			local manually_installed_servers = { "ocamllsp", "gleam" }
-
-			local mason_tools_to_install = vim.tbl_keys(vim.tbl_deep_extend("force", {}, servers, formatters))
-
-			local ensure_installed = vim.tbl_filter(function(name)
-				return not vim.tbl_contains(manually_installed_servers, name)
-			end, mason_tools_to_install)
-
-			require("mason-tool-installer").setup({
-				auto_update = true,
-				run_on_start = true,
-				start_delay = 3000,
-				debounce_hours = 12,
-				ensure_installed = ensure_installed,
-			})
-
-			-- Iterate over our servers and set them up
-			for name, config in pairs(servers) do
-				require("lspconfig")[name].setup({
-					capabilities = capabilities,
-					filetypes = config.filetypes,
-					handlers = vim.tbl_deep_extend("force", {}, default_handlers, config.handlers or {}),
-					--on_attach = on_attach,
-					settings = config.settings,
-				})
-			end
-
-			-- Setup mason so it can manage 3rd party LSP servers
-			require("mason").setup({
-				ui = {
-					border = "rounded",
-				},
-			})
-
-			require("mason-lspconfig").setup()
-
-			-- Configure borderd for LspInfo ui
-			require("lspconfig.ui.windows").default_options.border = "rounded"
-
-			-- Configure diagnostics border
-			vim.diagnostic.config({
-				float = {
-					border = "rounded",
-				},
-			})
-		end,
-	},
-	{
-		"stevearc/conform.nvim",
-		event = { "BufWritePre" },
-		cmd = { "ConformInfo" },
-		opts = {
-			notify_on_error = true,
-			format_on_save = {
-				async = true,
-				timeout_ms = 500,
-				lsp_fallback = true,
-			},
-			formatters_by_ft = {
-				javascript = { { "prettierd", "prettier" } },
-				typescript = { { "prettierd", "prettier" } },
-				typescriptreact = { { "prettierd", "prettier" } },
-				lua = { "stylua" },
-			},
-		},
-	},
+  end
 }
