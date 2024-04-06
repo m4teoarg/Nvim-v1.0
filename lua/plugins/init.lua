@@ -29,7 +29,5 @@ return {
 			require("nvim-web-devicons").setup(opts)
 		end,
 	},
-
-	-- require("dap"),
-	-- require("custom.mappings"),
+	
 }
