@@ -80,40 +80,14 @@ return {
 				eslint = {},
 				html = {},
 				jsonls = {},
-				lua_ls = {
-					settings = {
-						Lua = {
-							runtime = { version = "LuaJIT" },
-							workspace = {
-								checkThirdParty = false,
-								-- Tells lua_ls where to find all the Lua files that you have loaded
-								-- for your neovim configuration.
-								library = {
-									"${3rd}/luv/library",
-									unpack(vim.api.nvim_get_runtime_file("", true)),
-								},
-							},
-							telemetry = { enabled = false },
-						},
-					},
-				},
+				lua_ls = {},
 				marksman = {},
 				ocamllsp = {},
 				nil_ls = {},
 				pyright = {},
 				sqlls = {},
 				tailwindcss = {},
-				tsserver = {
-					settings = {
-						maxTsServerMemory = 12000,
-					},
-					handlers = {
-						["textDocument/publishDiagnostics"] = vim.lsp.with(
-							tsserver_on_publish_diagnostics_override,
-							{}
-						),
-					},
-				},
+				tsserver = {},
 				yamlls = {},
 			}
 
