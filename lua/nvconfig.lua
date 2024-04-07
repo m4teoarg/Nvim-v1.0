@@ -7,7 +7,7 @@ M.ui = {
     hl_override = {},
     changed_themes = {},
     theme_toggle = { "onedark", "one_light" },
-    theme = "default", -- default theme
+    theme = "onedark", -- default theme
     transparency = false,
 
     cmp = {
@@ -20,7 +20,7 @@ M.ui = {
 
     ------------------------------- nvchad_ui modules -----------------------------
     statusline = {
-        theme = "vscode_colored", -- default/vscode/vscode_colored/minimal
+        theme = "default", -- default/vscode/vscode_colored/minimal
         -- default/round/block/arrow separators work only for default statusline theme
         -- round and block will work for minimal theme only
         separator_style = "block",
